@@ -23,7 +23,6 @@ namespace HeuristicLab.ConsoleApplication {
             return;
           }
           for (int i = 0; i < options.Repetitions; i++) {
-            Console.WriteLine("rep: " + i);
             p.Start();
             eventHandle.Wait();
             eventHandle.Reset();
@@ -126,7 +125,7 @@ namespace HeuristicLab.ConsoleApplication {
 
     private void PrintRuns() {
       //Console.SetCursorPosition(0, 3);
-      Console.WriteLine(String.Format("Number of Runs: {0}/{1}; Initial number of runs: {2}", optimizer.Runs.Count - initialNumberOfRuns, numberOfRuns * repetitons, initialNumberOfRuns));
+      Console.WriteLine(String.Format("Number of Runs: {0}/{1}", optimizer.Runs.Count - initialNumberOfRuns, numberOfRuns * repetitons));
     }
 
     private void Optimizer_ExecutionStateChanged(object sender, EventArgs e) {
