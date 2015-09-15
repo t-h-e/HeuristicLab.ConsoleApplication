@@ -35,14 +35,15 @@
     <Reference Include="ALGLIB-3.7.0">
       <HintPath>..\..\HeuristicLab\bin\ALGLIB-3.7.0.dll</HintPath>
     </Reference>
+    <Reference Include="CommandLine, Version=1.9.71.2, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommandLineParser.1.9.71\lib\net45\CommandLine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="HeuristicLab.ALGLIB-3.7.0">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.ALGLIB-3.7.0.dll</HintPath>
     </Reference>
     <Reference Include="HeuristicLab.Algorithms.Benchmarks-3.3">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Algorithms.Benchmarks-3.3.dll</HintPath>
-    </Reference>
-    <Reference Include="HeuristicLab.Algorithms.Benchmarks.Views-3.3">
-      <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Algorithms.Benchmarks.Views-3.3.dll</HintPath>
     </Reference>
     <Reference Include="HeuristicLab.Algorithms.CMAEvolutionStrategy-3.3">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Algorithms.CMAEvolutionStrategy-3.3.dll</HintPath>
@@ -52,9 +53,6 @@
     </Reference>
     <Reference Include="HeuristicLab.Algorithms.DataAnalysis-3.4">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Algorithms.DataAnalysis-3.4.dll</HintPath>
-    </Reference>
-    <Reference Include="HeuristicLab.Algorithms.DataAnalysis.Views-3.4">
-      <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Algorithms.DataAnalysis.Views-3.4.dll</HintPath>
     </Reference>
     <Reference Include="HeuristicLab.Algorithms.EvolutionStrategy-3.3">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Algorithms.EvolutionStrategy-3.3.dll</HintPath>
@@ -152,6 +150,10 @@
     <Reference Include="HeuristicLab.LibSVM-3.12">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.LibSVM-3.12.dll</HintPath>
     </Reference>
+    <Reference Include="HeuristicLab.Misc, Version=3.3.0.0, Culture=neutral, PublicKeyToken=ba48961d6f65dcec, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Misc.dll</HintPath>
+    </Reference>
     <Reference Include="HeuristicLab.Operators-3.3">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Operators-3.3.dll</HintPath>
     </Reference>
@@ -187,6 +189,9 @@
     </Reference>
     <Reference Include="HeuristicLab.Problems.CFG">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Problems.CFG.dll</HintPath>
+    </Reference>
+    <Reference Include="HeuristicLab.Problems.CFG.Python">
+      <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Problems.CFG.Python.dll</HintPath>
     </Reference>
     <Reference Include="HeuristicLab.Problems.DataAnalysis-3.4">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Problems.DataAnalysis-3.4.dll</HintPath>
@@ -269,9 +274,6 @@
     <Reference Include="HeuristicLab.Problems.Scheduling-3.3">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Problems.Scheduling-3.3.dll</HintPath>
     </Reference>
-    <Reference Include="HeuristicLab.Problems.Scheduling.Views-3.3">
-      <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Problems.Scheduling.Views-3.3.dll</HintPath>
-    </Reference>
     <Reference Include="HeuristicLab.Problems.TestFunctions-3.3">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Problems.TestFunctions-3.3.dll</HintPath>
     </Reference>
@@ -323,11 +325,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
