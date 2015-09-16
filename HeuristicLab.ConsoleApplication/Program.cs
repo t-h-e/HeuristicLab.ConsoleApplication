@@ -47,6 +47,8 @@ namespace HeuristicLab.ConsoleApplication {
     private bool verbose;
     private bool loaded = false;
 
+    private TimeSpan lastTimespan = TimeSpan.Zero;
+
     public Program(string filePath, int repetitons, bool verbose = false) {
       this.filePath = filePath;
       this.repetitons = repetitons;
@@ -88,10 +90,9 @@ namespace HeuristicLab.ConsoleApplication {
         Console.WriteLine("Nothing has been loaded. Call Load() before Start().");
         return;
       }
-      if (optimizer.ExecutionState != ExecutionState.Started) {
-        optimizer.Prepare();
-        optimizer.Start();
-      }
+      optimizer.Prepare();
+      lastTimespan = TimeSpan.Zero;
+      optimizer.Start();
     }
 
     public void Save() {
@@ -107,15 +108,14 @@ namespace HeuristicLab.ConsoleApplication {
 
     private TimeSpan diffHour = new TimeSpan(1, 0, 0); // one hour
     private TimeSpan diffMinute = new TimeSpan(0, 1, 0); // one minute
-    private TimeSpan last = TimeSpan.Zero;
 
     private void Optimizer_ExecutionTimeChanged(object sender, EventArgs e) {
-      if ((verbose && optimizer.ExecutionTime.Subtract(last) > diffMinute)
-        || (!verbose && optimizer.ExecutionTime.Subtract(last) > diffHour)) {
+      if ((verbose && optimizer.ExecutionTime.Subtract(lastTimespan) > diffMinute)
+        || (!verbose && optimizer.ExecutionTime.Subtract(lastTimespan) > diffHour)) {
         //Console.SetCursorPosition(0, 2);
         Console.WriteLine(optimizer.ExecutionTime);
 
-        last = optimizer.ExecutionTime;
+        lastTimespan = optimizer.ExecutionTime;
       }
     }
 
