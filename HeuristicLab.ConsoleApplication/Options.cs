@@ -1,12 +1,13 @@
-﻿using CommandLine;
+﻿using System.Collections.Generic;
+using CommandLine;
 using CommandLine.Text;
 
 namespace HeuristicLab.ConsoleApplication {
   public class Options {
     //[Option('e', "experiment", Required = true,
     //  HelpText = "File which contains the experiment which should be run (Algorithm, BatchRun, Experiment).")]
-    [ValueOption(0)]
-    public string InputFile { get; set; }
+    [ValueList(typeof(List<string>))]
+    public List<string> InputFile { get; set; }
 
     [Option('r', "repetitions", Required = false, DefaultValue = 1,
       HelpText = "Number of repetitions")]
