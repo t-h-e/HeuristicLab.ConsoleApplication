@@ -13,7 +13,7 @@ namespace HeuristicLab.ConsoleApplication {
       HelpText = "Number of repetitions")]
     public int Repetitions { get; set; }
 
-    [Option('v', "verbose", DefaultValue = true,
+    [Option('v', "verbose", DefaultValue = false,
       HelpText = "Prints all messages to standard output.")]
     public bool Verbose { get; set; }
 
