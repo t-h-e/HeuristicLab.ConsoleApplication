@@ -13,7 +13,7 @@ namespace HeuristicLab.ConsoleApplication {
           // initialize ContentManager once
           ContentManager.Initialize(new PersistenceContentManager());
 
-          int count = options.InputFile.Count;
+          int count = options.InputFiles.Count;
           HeuristicLabWorkingThread[] hlWorkingThread = new HeuristicLabWorkingThread[count];
           Thread[] hlThreads = new Thread[count];
           WaitHandle[] finishedWaitHandles = new WaitHandle[count];
@@ -23,7 +23,7 @@ namespace HeuristicLab.ConsoleApplication {
             finishedWaitHandles[i] = finishedEvent.WaitHandle;
 
 
-            hlWorkingThread[i] = new HeuristicLabWorkingThread(options.InputFile[i], options.Repetitions, finishedEvent, options.Verbose);
+            hlWorkingThread[i] = new HeuristicLabWorkingThread(options.InputFiles[i], options.Repetitions, finishedEvent, options.Verbose);
             hlThreads[i] = new Thread(new ThreadStart(hlWorkingThread[i].Run));
             hlThreads[i].Start();
           }

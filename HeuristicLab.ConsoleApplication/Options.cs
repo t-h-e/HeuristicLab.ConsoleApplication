@@ -4,17 +4,16 @@ using CommandLine.Text;
 
 namespace HeuristicLab.ConsoleApplication {
   public class Options {
-    //[Option('e', "experiment", Required = true,
-    //  HelpText = "File which contains the experiment which should be run (Algorithm, BatchRun, Experiment).")]
+    [Option(Required = true, HelpText = "Files which contain experiments which should be run (Algorithm, BatchRun, Experiment).")]
     [ValueList(typeof(List<string>))]
-    public List<string> InputFile { get; set; }
+    public List<string> InputFiles { get; set; }
 
     [Option('r', "repetitions", Required = false, DefaultValue = 1,
       HelpText = "Number of repetitions")]
     public int Repetitions { get; set; }
 
     [Option('v', "verbose", DefaultValue = false,
-      HelpText = "Prints all messages to standard output.")]
+      HelpText = "Output time information from runs in intervals of minutes, default is hourly")]
     public bool Verbose { get; set; }
 
     [ParserState]
