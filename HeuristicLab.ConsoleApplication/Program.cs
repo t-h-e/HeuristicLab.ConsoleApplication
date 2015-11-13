@@ -12,11 +12,13 @@ namespace HeuristicLab.ConsoleApplication {
           // initialize ContentManager once
           ContentManager.Initialize(new PersistenceContentManager());
 
-          if (false) {
-            (new AllInOne()).Start(options);
-          } else {
-            (new SplitToSingleRuns()).Start(options);
-          }
+          //if (false) {
+          //  (new AllInOne()).Start(options);
+          //} else {
+          //  (new SplitToSingleRuns()).Start(options);
+          //}
+
+          (new GrammarPossibilities()).Start(options);
 
           Console.WriteLine("All Threads finished successfully");
         }
