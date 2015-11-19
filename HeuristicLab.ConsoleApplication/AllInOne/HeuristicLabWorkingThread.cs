@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using HeuristicLab.Common;
@@ -102,10 +103,20 @@ namespace HeuristicLab.ConsoleApplication {
     private void Optimizer_ExecutionTimeChanged(object sender, EventArgs e) {
       if ((verbose && optimizer.ExecutionTime.Subtract(lastTimespan) > diffMinute)
         || (!verbose && optimizer.ExecutionTime.Subtract(lastTimespan) > diffHour)) {
-        printToConsole(optimizer.ExecutionTime);
-
+        printToConsole(optimizer.ExecutionTime + "; " + GetGeneration(optimizer));
         lastTimespan = optimizer.ExecutionTime;
       }
+    }
+
+    private string GetGeneration(IOptimizer opt) {
+      var engineAlgorithm = opt.NestedOptimizers.Where(o => o is EngineAlgorithm
+        && o.ExecutionState.Equals(HeuristicLab.Core.ExecutionState.Started)).FirstOrDefault() as EngineAlgorithm;
+
+      if (engineAlgorithm != null && engineAlgorithm.Results.ContainsKey("Generations")) {
+        return engineAlgorithm.Results["Generations"].ToString();
+      }
+
+      return "No generation info found.";
     }
 
     private void Optimizer_Runs_RowsChanged(object sender, EventArgs e) {

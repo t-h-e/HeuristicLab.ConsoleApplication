@@ -18,7 +18,7 @@ namespace HeuristicLab.ConsoleApplication {
           //  (new SplitToSingleRuns()).Start(options);
           //}
 
-          (new GrammarPossibilities()).Start(options);
+          (new AllInOne()).Start(options);
 
           Console.WriteLine("All Threads finished successfully");
         }
