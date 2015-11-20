@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using HeuristicLab.Common;
+using HeuristicLab.Core;
+using HeuristicLab.Data;
 using HeuristicLab.Optimization;
 
 namespace HeuristicLab.ConsoleApplication {
@@ -23,6 +25,7 @@ namespace HeuristicLab.ConsoleApplication {
     private ManualResetEventSlim finishedEvent;
 
     private TimeSpan lastTimespan = TimeSpan.Zero;
+    private int seed;
 
     public HeuristicLabWorkingThread(string filePath, int repetitons, ManualResetEventSlim finishedEvent, bool verbose = false) {
       this.filePath = filePath;
@@ -38,6 +41,8 @@ namespace HeuristicLab.ConsoleApplication {
         finishedEvent.Set();
         return;
       }
+
+      seed = GetSeed(optimizer);
       for (int i = 0; i < repetitions; i++) {
         Start();
         saveEventHandle.Wait();
@@ -101,6 +106,12 @@ namespace HeuristicLab.ConsoleApplication {
     private TimeSpan diffMinute = new TimeSpan(0, 1, 0); // one minute
 
     private void Optimizer_ExecutionTimeChanged(object sender, EventArgs e) {
+      int curSeed = GetSeed(optimizer);
+      if (seed != curSeed) {
+        printToConsole("Seed changed: " + curSeed);
+        seed = curSeed;
+      }
+
       if ((verbose && optimizer.ExecutionTime.Subtract(lastTimespan) > diffMinute)
         || (!verbose && optimizer.ExecutionTime.Subtract(lastTimespan) > diffHour)) {
         printToConsole(optimizer.ExecutionTime + "; " + GetGeneration(optimizer));
@@ -108,9 +119,27 @@ namespace HeuristicLab.ConsoleApplication {
       }
     }
 
+    private int GetSeed(IOptimizer opt) {
+      var pni = opt as IParameterizedItem;
+
+      if (pni == null) {
+        pni = opt.NestedOptimizers.Where(o => o is IParameterizedItem
+          && o.ExecutionState.Equals(HeuristicLab.Core.ExecutionState.Started)).FirstOrDefault() as IParameterizedItem;
+      }
+
+      if (pni != null && pni.Parameters.ContainsKey("Seed")) {
+        return ((IntValue)pni.Parameters["Seed"].ActualValue).Value;
+      }
+
+      return -1;
+    }
+
     private string GetGeneration(IOptimizer opt) {
-      var engineAlgorithm = opt.NestedOptimizers.Where(o => o is EngineAlgorithm
-        && o.ExecutionState.Equals(HeuristicLab.Core.ExecutionState.Started)).FirstOrDefault() as EngineAlgorithm;
+      var engineAlgorithm = opt as EngineAlgorithm;
+      if (engineAlgorithm == null) {
+        engineAlgorithm = opt.NestedOptimizers.Where(o => o is EngineAlgorithm
+         && o.ExecutionState.Equals(HeuristicLab.Core.ExecutionState.Started)).FirstOrDefault() as EngineAlgorithm;
+      }
 
       if (engineAlgorithm != null && engineAlgorithm.Results.ContainsKey("Generations")) {
         return engineAlgorithm.Results["Generations"].ToString();
