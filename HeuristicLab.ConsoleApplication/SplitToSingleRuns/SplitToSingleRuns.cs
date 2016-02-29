@@ -17,6 +17,10 @@ namespace HeuristicLab.ConsoleApplication {
     public void Start(Options options) {
       int count = options.InputFiles.Count;
       if (count > 1) { throw new ArgumentException("SplitToSingleRuns currently supports only a single file."); }
+      if (options.Repetitions != 1) {
+        options.Repetitions = 1;
+        Console.WriteLine("SplitToSingleRuns does not support repetitions." + Environment.NewLine + "Repetions has been set to 1.");
+      }
 
       this.verbose = options.Verbose;
       this.filePath = options.InputFiles.First();
@@ -36,10 +40,11 @@ namespace HeuristicLab.ConsoleApplication {
       ParallelOptions parallelOptions = new ParallelOptions();
       parallelOptions.MaxDegreeOfParallelism = 2;
 
+      Helper.printToConsole(String.Format("Number of Runs: {0}/{1}", results.Count, taskCount), fileName);
       Parallel.ForEach<HLTask>(tasks, parallelOptions, (hl) => {
         hl.Start();
         results.Add(hl.GetRun());
-        Helper.printToConsole(String.Format("Number of Runs: {0}/{1}", taskCount, results.Count), fileName);
+        Helper.printToConsole(String.Format("Number of Runs: {0}/{1}", results.Count, taskCount), fileName);
       });
 
       RunCollection runs = new RunCollection(results);

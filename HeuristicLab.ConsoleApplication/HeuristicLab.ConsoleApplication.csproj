@@ -193,6 +193,9 @@
     <Reference Include="HeuristicLab.Problems.CFG.Python">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Problems.CFG.Python.dll</HintPath>
     </Reference>
+    <Reference Include="HeuristicLab.Problems.CFG.Python.Semantics">
+      <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Problems.CFG.Python.Semantics.dll</HintPath>
+    </Reference>
     <Reference Include="HeuristicLab.Problems.DataAnalysis-3.4">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Problems.DataAnalysis-3.4.dll</HintPath>
     </Reference>

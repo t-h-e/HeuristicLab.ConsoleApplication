@@ -6,22 +6,26 @@ using HeuristicLab.Problems.CFG;
 namespace HeuristicLab.ConsoleApplication {
   public class GrammarPossibilities : IRunStrategy {
 
-    private static string BNF = @"<expr> ::= <val> <op> <val> | <val>
+    private static string BNF = @"<e> ::= <e> <o> <e> | <v> | 1 | 2
 
-<op> ::= + | - | *
+<o> ::= + | - | *
 
-<val> ::= N_m | N_s | N_ms | s_log_R | <epsilon> | m_log_R | R_s_avg | R_m_avg | R_ms_avg | ms_log_R
+<v> ::= a | b";
 
-<epsilon> ::= float(<n><n><n>.<n><n><n>)
+    //    private static string BNF = @"<expr> ::= <val> <op> <val> | <val> | 1 | 2
+    //
+    //<op> ::= + | - | *
+    //
+    //<val> ::= N_m | N_s";
 
-<n> ::= 0|1|2|3|4|5|6|7|8|9";
 
     public void Start(Options options) {
       CFGParser pars = new CFGParser();
 
       var grammar = pars.readGrammarBNF(BNF);
 
-      long possibilities = CalcPossibilitiesOfDepth(grammar, 4);
+      long possibilities = CalcPossibilitiesOfDepth(grammar, 2);
+      System.Console.WriteLine(possibilities);
     }
 
     Dictionary<ISymbol, Dictionary<int, int>> depthPerSymbolTrees = new Dictionary<ISymbol, Dictionary<int, int>>();
@@ -62,7 +66,11 @@ namespace HeuristicLab.ConsoleApplication {
       }
 
       foreach (var sy in startSymbols) {
-        pos += depthPerSymbolTrees[sy][depth];
+        if (depthPerSymbolTrees.ContainsKey(sy)) {
+          pos += depthPerSymbolTrees[sy].ContainsKey(depth) ? depthPerSymbolTrees[sy][depth] : 0;
+        } else {
+          pos += 1;
+        }
       }
 
       return pos;
