@@ -129,17 +129,11 @@
     <Reference Include="HeuristicLab.Encodings.PermutationEncoding-3.3">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Encodings.PermutationEncoding-3.3.dll</HintPath>
     </Reference>
-    <Reference Include="HeuristicLab.Encodings.PermutationEncoding.Views-3.3">
-      <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Encodings.PermutationEncoding.Views-3.3.dll</HintPath>
-    </Reference>
     <Reference Include="HeuristicLab.Encodings.RealVectorEncoding-3.3">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Encodings.RealVectorEncoding-3.3.dll</HintPath>
     </Reference>
     <Reference Include="HeuristicLab.Encodings.ScheduleEncoding-3.3">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Encodings.ScheduleEncoding-3.3.dll</HintPath>
-    </Reference>
-    <Reference Include="HeuristicLab.Encodings.ScheduleEncoding.Views-3.3">
-      <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Encodings.ScheduleEncoding.Views-3.3.dll</HintPath>
     </Reference>
     <Reference Include="HeuristicLab.Encodings.SymbolicExpressionTreeEncoding-3.4">
       <HintPath>..\..\HeuristicLab\bin\HeuristicLab.Encodings.SymbolicExpressionTreeEncoding-3.4.dll</HintPath>
