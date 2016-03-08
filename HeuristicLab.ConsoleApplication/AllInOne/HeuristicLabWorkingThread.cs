@@ -168,6 +168,14 @@ namespace HeuristicLab.ConsoleApplication {
       printToConsole("Optimizer Exception");
       printToConsole(e.Value.Message);
       printToConsole(e.Value.StackTrace);
+
+      Exception ex = e.Value;
+      while (ex != null) {
+        printToConsole(ex.Message);
+        printToConsole(ex.StackTrace);
+        printToConsole(Environment.NewLine);
+        ex = ex.InnerException;
+      }
     }
 
     private void printToConsole(object value) {

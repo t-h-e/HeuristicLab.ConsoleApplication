@@ -59,8 +59,13 @@ namespace HeuristicLab.ConsoleApplication {
 
     private void Optimizer_Exception(object sender, EventArgs<Exception> e) {
       Helper.printToConsole("Optimizer Exception", taskname);
-      Helper.printToConsole(e.Value.Message, taskname);
-      Helper.printToConsole(e.Value.StackTrace, taskname);
+      Exception ex = e.Value;
+      while (ex != null) {
+        Helper.printToConsole(ex.Message, taskname);
+        Helper.printToConsole(ex.StackTrace, taskname);
+        Helper.printToConsole(Environment.NewLine, taskname);
+        ex = ex.InnerException;
+      }
     }
   }
 }
