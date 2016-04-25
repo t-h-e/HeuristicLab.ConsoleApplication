@@ -12,7 +12,7 @@ namespace HeuristicLab.ConsoleApplication {
           // initialize ContentManager once
           ContentManager.Initialize(new PersistenceContentManager());
 
-          if (false) {
+          if (true) {
             (new AllInOne()).Start(options);
           } else {
             (new SplitToSingleRuns()).Start(options);
