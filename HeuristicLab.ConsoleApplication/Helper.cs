@@ -4,8 +4,20 @@ using System.Text;
 namespace HeuristicLab.ConsoleApplication {
   public class Helper {
 
+    private static Object writeLock = new Object();
+
     public static readonly TimeSpan diffHour = new TimeSpan(1, 0, 0); // one hour
     public static readonly TimeSpan diffMinute = new TimeSpan(0, 1, 0); // one minute
+
+    public static void printToConsole(Exception ex, string fileName, string message = "") {
+      if (String.IsNullOrEmpty(message)) Helper.printToConsole(message, fileName);
+      while (ex != null) {
+        Helper.printToConsole(ex.Message, fileName);
+        Helper.printToConsole(ex.StackTrace, fileName);
+        Helper.printToConsole(Environment.NewLine, fileName);
+        ex = ex.InnerException;
+      }
+    }
 
     public static void printToConsole(object value, string fileName) {
       printToConsole(value.ToString(), fileName);
@@ -17,7 +29,9 @@ namespace HeuristicLab.ConsoleApplication {
       strBuilder.Append(fileName);
       strBuilder.Append(": ");
       strBuilder.Append(value);
-      Console.WriteLine(strBuilder.ToString());
+      lock (writeLock) {
+        Console.WriteLine(strBuilder.ToString());
+      }
     }
   }
 }

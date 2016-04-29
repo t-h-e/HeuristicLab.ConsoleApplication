@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using HeuristicLab.Common;
 using HeuristicLab.Optimization;
@@ -10,79 +9,123 @@ using HeuristicLab.Optimization;
 namespace HeuristicLab.ConsoleApplication {
   public class SplitToSingleRuns : IRunStrategy {
 
-    private string filePath;
-    private string fileName;
-    private bool verbose;
-
     public void Start(Options options) {
-      int count = options.InputFiles.Count;
-      if (count > 1) { throw new ArgumentException("SplitToSingleRuns currently supports only a single file."); }
-      if (options.Repetitions != 1) {
-        options.Repetitions = 1;
-        Console.WriteLine("SplitToSingleRuns does not support repetitions." + Environment.NewLine + "Repetions has been set to 1.");
+      foreach (var filePath in options.InputFiles) {
+        RunFile(filePath, options.Repetitions, options.Verbose);
       }
-
-      this.verbose = options.Verbose;
-      this.filePath = options.InputFiles.First();
-      this.fileName = Path.GetFileName(filePath);
-
-      var optimizer = Load(filePath);
-      if (optimizer == null) { throw new ArgumentException("File does not contain an optimizer."); }
-
-      optimizer.Prepare();
-      optimizer.Runs.Clear();
-
-      var tasks = UnrollOptimizer(optimizer);
-      int taskCount = tasks.Count();
-
-      ConcurrentBag<IRun> results = new ConcurrentBag<IRun>();
-
-      ParallelOptions parallelOptions = new ParallelOptions();
-      parallelOptions.MaxDegreeOfParallelism = 2;
-
-      Helper.printToConsole(String.Format("Number of Runs: {0}/{1}", results.Count, taskCount), fileName);
-      Parallel.ForEach<HLTask>(tasks, parallelOptions, (hl) => {
-        hl.Start();
-        results.Add(hl.GetRun());
-        Helper.printToConsole(String.Format("Number of Runs: {0}/{1}", results.Count, taskCount), fileName);
-      });
-
-      RunCollection runs = new RunCollection(results);
-      ContentManager.Save(runs, Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + "-Results.hl"), false);
-
     }
 
-    public IOptimizer Load(string filePath) {
-      Helper.printToConsole("Loading...", fileName);
+    private void RunFile(string filePath, int repetitions, bool verbose) {
+      string fileName = Path.GetFileName(filePath);
+      List<HLRunInfo> tasks = new List<HLRunInfo>();
+      var optimizer = Load(filePath);
+      optimizer.Prepare();
+      optimizer.Runs.Clear();
+      if (optimizer == null) { Console.WriteLine(String.Format("{0} does not contain an optimizer.", filePath)); return; }
+      var listOfOptimizer = UnrollOptimizer(optimizer);
+
+      for (int i = 0; i < repetitions; i++) {
+        foreach (var opt in listOfOptimizer) {
+
+          int coresRequired = opt as EngineAlgorithm != null && (opt as EngineAlgorithm).Engine as HeuristicLab.ParallelEngine.ParallelEngine != null
+                              ? ((opt as EngineAlgorithm).Engine as HeuristicLab.ParallelEngine.ParallelEngine).DegreeOfParallelism
+                              : 1;
+          coresRequired = coresRequired > 0 ? coresRequired : Environment.ProcessorCount;
+
+          string savePath = Path.GetTempFileName();
+          Helper.printToConsole(String.Format("Temporary save path: {0}", savePath), fileName);
+          tasks.Add(new HLRunInfo((IOptimizer)opt.Clone(), filePath, coresRequired, savePath));
+        }
+      }
+
+      SemaphoreSlim s = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
+
+      TaskFactory tf = new TaskFactory();
+      List<Task> waitForTasks = new List<Task>();
+
+      int finished = 0;
+      Helper.printToConsole(String.Format("Number of Runs: {0}/{1}", finished, tasks.Count), fileName);
+      Object syncLock = new Object();
+
+      int sleepCount = 0;  // prevents two threads from having the same seed due to being start at the same time, or at least makes it unlikely
+      foreach (var task in tasks) {
+        HLTask hl = new HLTask(task, verbose);
+        for (int i = 0; i < task.CoresRequired; i++) {
+          s.Wait();
+        }
+
+        waitForTasks.Add(tf.StartNew<bool>(() => {
+          lock (syncLock) {
+            Thread.Sleep(sleepCount);
+            sleepCount++;
+          }
+
+          bool success = false;
+          try {
+            success = hl.Start();
+          }
+          catch (Exception e) {
+            Helper.printToConsole(e, "Thread Exception.");
+          }
+          s.Release(hl.runInfo.CoresRequired);
+          lock (syncLock) {
+            finished++;
+            Helper.printToConsole(String.Format("Number of Runs: {0}/{1}", finished, tasks.Count), fileName);
+          }
+          return success;
+        }));
+      }
+
+      Task.WaitAll(waitForTasks.ToArray());
+
+      Helper.printToConsole("Saving...", fileName);
+      RunCollection allRuns = new RunCollection();
+
+      foreach (var task in tasks) {
+        if (!File.Exists(task.SavePath)) {
+          Helper.printToConsole(String.Format("WARNING: {0} does not exist. {0} has probably not been saved.", task.SavePath), fileName);
+          continue;
+        }
+        var runCollection = ContentManager.Load(task.SavePath) as RunCollection;
+        if (runCollection != null) {
+          allRuns.AddRange(runCollection);
+        } else {
+          Helper.printToConsole(String.Format("WARNING: {0} is not a run collection.", task.SavePath), fileName);
+        }
+      }
+
+      ContentManager.Save(allRuns, Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + "-Results.hl"), false);
+    }
+
+    private IOptimizer Load(string filePath) {
+      Helper.printToConsole("Loading...", Path.GetFileName(filePath));
       var content = ContentManager.Load(filePath);
 
-      Helper.printToConsole("Loading completed!", fileName);
-      Helper.printToConsole("Content loaded: " + content.ToString(), fileName);
+      Helper.printToConsole("Loading completed!", Path.GetFileName(filePath));
+      Helper.printToConsole("Content loaded: " + content.ToString(), Path.GetFileName(filePath));
 
       return content as IOptimizer;
     }
 
-    private static long count = 0;
-
-    public IEnumerable<HLTask> UnrollOptimizer(IOptimizer optimizer) {
-      List<HLTask> tasks = new List<HLTask>();
+    public IEnumerable<IOptimizer> UnrollOptimizer(IOptimizer optimizer) {
+      List<IOptimizer> optimizers = new List<IOptimizer>();
 
       var batchRun = optimizer as BatchRun;
       var experiment = optimizer as Experiment;
 
       if (batchRun != null && batchRun.Optimizer != null) {
         for (int i = 0; i < batchRun.Repetitions; i++) {
-          tasks.AddRange(UnrollOptimizer(batchRun.Optimizer));
+          optimizers.AddRange(UnrollOptimizer(batchRun.Optimizer));
         }
       } else if (experiment != null) {
         foreach (var opt in experiment.Optimizers) {
-          tasks.AddRange(UnrollOptimizer(opt));
+          optimizers.AddRange(UnrollOptimizer(opt));
         }
       } else {
-        tasks.Add(new HLTask(optimizer, fileName + count++, verbose));
+        optimizers.Add(optimizer);
       }
 
-      return tasks;
+      return optimizers;
     }
   }
 }

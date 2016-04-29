@@ -9,38 +9,47 @@ namespace HeuristicLab.ConsoleApplication {
 
     private ManualResetEventSlim finishedEventHandle;
 
-    private IOptimizer optimizer;
+    public HLRunInfo runInfo;
+
+    public IOptimizer Optimizer { get { return runInfo.Optimizer; } }
 
     private TimeSpan lastTimespan;
 
     private bool verbose;
-    private string taskname;
 
-    public HLTask(IOptimizer optimizer, string taskname, bool verbose) {
-      this.optimizer = (IOptimizer)optimizer.Clone();
+    private bool finishedSuccessfully = true;
 
-      this.taskname = taskname;
+    public HLTask(HLRunInfo runInfo, bool verbose) {
+      this.runInfo = runInfo;
       this.verbose = verbose;
 
       RegisterEvents();
     }
 
     private void RegisterEvents() {
-      optimizer.Stopped += new EventHandler(Optimizer_Stopped);
-      optimizer.ExecutionTimeChanged += new EventHandler(Optimizer_ExecutionTimeChanged);
-      optimizer.ExceptionOccurred += new EventHandler<EventArgs<Exception>>(Optimizer_Exception);
+      Optimizer.Stopped += new EventHandler(Optimizer_Stopped);
+      Optimizer.ExecutionTimeChanged += new EventHandler(Optimizer_ExecutionTimeChanged);
+      Optimizer.ExceptionOccurred += new EventHandler<EventArgs<Exception>>(Optimizer_Exception);
     }
 
-    public void Start() {
+    public bool Start() {
       lastTimespan = TimeSpan.Zero;
       finishedEventHandle = new ManualResetEventSlim(false, 1);
-      optimizer.Start();
+      Optimizer.Start();
       finishedEventHandle.Wait();
+
+      if (Optimizer.ExecutionState == Core.ExecutionState.Started || Optimizer.ExecutionState == Core.ExecutionState.Paused) {
+        Optimizer.Stop();
+      }
+
+      ContentManager.Save(new RunCollection(GetRun().ToEnumerable()), runInfo.SavePath, false);
+
+      return finishedSuccessfully;
     }
 
-    public IRun GetRun() {
-      if (optimizer.Runs.Count > 1) { throw new ArgumentException("Should not contain more than one run."); }
-      return optimizer.Runs.First();
+    private IRun GetRun() {
+      if (Optimizer.Runs.Count > 1) { throw new ArgumentException("Should not contain more than one run."); }
+      return Optimizer.Runs.Count < 1 ? null : Optimizer.Runs.First();
     }
 
     private void Optimizer_Stopped(object sender, EventArgs e) {
@@ -49,23 +58,32 @@ namespace HeuristicLab.ConsoleApplication {
 
 
     private void Optimizer_ExecutionTimeChanged(object sender, EventArgs e) {
-      if ((verbose && optimizer.ExecutionTime.Subtract(lastTimespan) > Helper.diffMinute)
-        || (!verbose && optimizer.ExecutionTime.Subtract(lastTimespan) > Helper.diffHour)) {
-        Helper.printToConsole(optimizer.ExecutionTime, taskname);
+      if ((verbose && Optimizer.ExecutionTime.Subtract(lastTimespan) > Helper.diffMinute)
+        || (!verbose && Optimizer.ExecutionTime.Subtract(lastTimespan) > Helper.diffHour)) {
+        Helper.printToConsole(Optimizer.ExecutionTime + "; " + GetGeneration(Optimizer), runInfo.FileName);
 
-        lastTimespan = optimizer.ExecutionTime;
+        lastTimespan = Optimizer.ExecutionTime;
       }
     }
 
     private void Optimizer_Exception(object sender, EventArgs<Exception> e) {
-      Helper.printToConsole("Optimizer Exception", taskname);
-      Exception ex = e.Value;
-      while (ex != null) {
-        Helper.printToConsole(ex.Message, taskname);
-        Helper.printToConsole(ex.StackTrace, taskname);
-        Helper.printToConsole(Environment.NewLine, taskname);
-        ex = ex.InnerException;
+      Helper.printToConsole(e.Value, runInfo.FileName, "Optimizer Exception");
+      finishedSuccessfully = false;
+      finishedEventHandle.Set();
+    }
+
+    private string GetGeneration(IOptimizer opt) {
+      var engineAlgorithm = opt as EngineAlgorithm;
+      if (engineAlgorithm == null) {
+        engineAlgorithm = opt.NestedOptimizers.Where(o => o is EngineAlgorithm
+         && o.ExecutionState.Equals(HeuristicLab.Core.ExecutionState.Started)).FirstOrDefault() as EngineAlgorithm;
       }
+
+      if (engineAlgorithm != null && engineAlgorithm.Results.ContainsKey("Generations")) {
+        return engineAlgorithm.Results["Generations"].ToString();
+      }
+
+      return "No generation info found.";
     }
   }
 }
