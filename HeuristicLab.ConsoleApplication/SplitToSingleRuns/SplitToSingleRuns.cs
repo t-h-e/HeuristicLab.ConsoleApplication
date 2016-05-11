@@ -94,7 +94,7 @@ namespace HeuristicLab.ConsoleApplication {
         }
       }
 
-      ContentManager.Save(allRuns, Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + "-Results.hl"), false);
+      ContentManager.Save(allRuns, Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + "-Results.hl"), true);
     }
 
     private IOptimizer Load(string filePath) {

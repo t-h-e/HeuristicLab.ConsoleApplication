@@ -16,6 +16,9 @@ namespace HeuristicLab.ConsoleApplication {
             case RunAs.split:
               (new SplitToSingleRuns()).Start(options);
               break;
+            case RunAs.breakup:
+              (new BreakupExperiment()).Start(options);
+              break;
             default:
               (new AllInOne()).Start(options);
               break;

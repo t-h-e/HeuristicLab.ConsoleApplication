@@ -94,7 +94,7 @@ namespace HeuristicLab.ConsoleApplication {
     public void Save() {
       if (content != null) {
         printToConsole("Saving...");
-        ContentManager.Save(content, filePath, false);
+        ContentManager.Save(content, filePath, true);
         printToConsole("Saved");
       } else {
         printToConsole("No content available");

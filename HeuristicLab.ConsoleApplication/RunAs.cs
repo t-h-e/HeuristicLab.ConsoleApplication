@@ -2,5 +2,6 @@
   public enum RunAs {
     aio,
     split,
+    breakup,
   }
 }
