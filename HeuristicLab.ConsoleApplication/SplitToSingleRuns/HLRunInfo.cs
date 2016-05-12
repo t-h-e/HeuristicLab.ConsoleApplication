@@ -16,5 +16,9 @@ namespace HeuristicLab.ConsoleApplication {
       CoresRequired = coresRequired;
       SavePath = savePath;
     }
+
+    public void RemoveOptimizer() {
+      Optimizer = null;
+    }
   }
 }

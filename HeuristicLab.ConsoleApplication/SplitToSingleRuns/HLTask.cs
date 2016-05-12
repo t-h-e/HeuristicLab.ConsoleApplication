@@ -22,17 +22,11 @@ namespace HeuristicLab.ConsoleApplication {
     public HLTask(HLRunInfo runInfo, bool verbose) {
       this.runInfo = runInfo;
       this.verbose = verbose;
-
-      RegisterEvents();
-    }
-
-    private void RegisterEvents() {
-      Optimizer.Stopped += new EventHandler(Optimizer_Stopped);
-      Optimizer.ExecutionTimeChanged += new EventHandler(Optimizer_ExecutionTimeChanged);
-      Optimizer.ExceptionOccurred += new EventHandler<EventArgs<Exception>>(Optimizer_Exception);
     }
 
     public bool Start() {
+      RegisterEvents();
+
       lastTimespan = TimeSpan.Zero;
       finishedEventHandle = new ManualResetEventSlim(false, 1);
       Optimizer.Start();
@@ -44,8 +38,24 @@ namespace HeuristicLab.ConsoleApplication {
 
       ContentManager.Save(new RunCollection(GetRun().ToEnumerable()), runInfo.SavePath, false);
 
+      DeregisterEvents();
+      finishedEventHandle.Dispose();
       return finishedSuccessfully;
     }
+
+    private void RegisterEvents() {
+      Optimizer.Stopped += new EventHandler(Optimizer_Stopped);
+      Optimizer.ExecutionTimeChanged += new EventHandler(Optimizer_ExecutionTimeChanged);
+      Optimizer.ExceptionOccurred += new EventHandler<EventArgs<Exception>>(Optimizer_Exception);
+    }
+
+    private void DeregisterEvents() {
+      Optimizer.Stopped -= new EventHandler(Optimizer_Stopped);
+      Optimizer.ExecutionTimeChanged -= new EventHandler(Optimizer_ExecutionTimeChanged);
+      Optimizer.ExceptionOccurred -= new EventHandler<EventArgs<Exception>>(Optimizer_Exception);
+    }
+
+
 
     private IRun GetRun() {
       if (Optimizer.Runs.Count > 1) { throw new ArgumentException("Should not contain more than one run."); }

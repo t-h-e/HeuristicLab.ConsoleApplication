@@ -28,8 +28,7 @@ namespace HeuristicLab.ConsoleApplication {
 
           Console.WriteLine("All Threads finished successfully");
         }
-      }
-      catch (Exception e) {
+      } catch (Exception e) {
         Console.WriteLine(e.Message);
         Console.WriteLine(e.StackTrace);
         while (e != null) {

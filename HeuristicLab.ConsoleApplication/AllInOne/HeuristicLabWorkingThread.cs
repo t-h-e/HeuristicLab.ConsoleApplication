@@ -52,6 +52,7 @@ namespace HeuristicLab.ConsoleApplication {
 
       printToConsole("Finished");
       finishedEvent.Set();
+      saveEventHandle.Dispose();
     }
 
     public bool Load() {

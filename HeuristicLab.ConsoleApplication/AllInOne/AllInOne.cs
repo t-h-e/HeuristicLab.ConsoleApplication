@@ -19,6 +19,9 @@ namespace HeuristicLab.ConsoleApplication {
       }
 
       WaitHandle.WaitAll(finishedWaitHandles);
+      foreach (var wait in finishedWaitHandles) {
+        wait.Dispose();
+      }
     }
   }
 }

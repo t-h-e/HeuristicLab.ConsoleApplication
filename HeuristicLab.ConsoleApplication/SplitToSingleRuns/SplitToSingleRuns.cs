@@ -63,9 +63,13 @@ namespace HeuristicLab.ConsoleApplication {
           bool success = false;
           try {
             success = hl.Start();
-          }
-          catch (Exception e) {
+          } catch (Exception e) {
             Helper.printToConsole(e, "Thread Exception.");
+          }
+
+          var algorithm = hl.Optimizer as IAlgorithm;
+          if (algorithm != null && algorithm.Problem is IDisposable) {
+            ((IDisposable)algorithm.Problem).Dispose();
           }
           s.Release(hl.runInfo.CoresRequired);
           lock (syncLock) {
