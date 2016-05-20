@@ -8,6 +8,7 @@ namespace HeuristicLab.ConsoleApplication {
       try {
         var options = new Options();
         if (CommandLine.Parser.Default.ParseArguments(args, options)) {
+          Console.WriteLine(String.Format("Used command: {0}", String.Join(" ", args)));
 
           // initialize ContentManager once
           ContentManager.Initialize(new PersistenceContentManager());
@@ -18,6 +19,9 @@ namespace HeuristicLab.ConsoleApplication {
               break;
             case RunAs.breakup:
               (new BreakupExperiment()).Start(options);
+              break;
+            case RunAs.collect:
+              (new CollectRuns()).Start(options);
               break;
             default:
               (new AllInOne()).Start(options);
@@ -36,6 +40,8 @@ namespace HeuristicLab.ConsoleApplication {
           Console.WriteLine(e.StackTrace);
           e = e.InnerException;
         }
+
+        Console.WriteLine("Exit with ERRORS!");
       }
     }
   }

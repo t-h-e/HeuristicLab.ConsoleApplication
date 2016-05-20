@@ -4,6 +4,8 @@ namespace HeuristicLab.ConsoleApplication {
   public class AllInOne : IRunStrategy {
     public void Start(Options options) {
       int count = options.InputFiles.Count;
+      if (count == 0) return;
+
       HeuristicLabWorkingThread[] hlWorkingThread = new HeuristicLabWorkingThread[count];
       Thread[] hlThreads = new Thread[count];
       WaitHandle[] finishedWaitHandles = new WaitHandle[count];

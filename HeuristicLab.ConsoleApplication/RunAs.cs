@@ -3,5 +3,6 @@
     aio,
     split,
     breakup,
+    collect,
   }
 }
