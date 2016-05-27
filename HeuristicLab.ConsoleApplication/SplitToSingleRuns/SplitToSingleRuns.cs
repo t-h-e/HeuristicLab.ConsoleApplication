@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using HeuristicLab.Common;
+using HeuristicLab.Core;
+using HeuristicLab.Data;
 using HeuristicLab.Optimization;
 
 namespace HeuristicLab.ConsoleApplication {
@@ -11,11 +15,11 @@ namespace HeuristicLab.ConsoleApplication {
 
     public void Start(Options options) {
       foreach (var filePath in options.InputFiles) {
-        RunFile(filePath, options.Repetitions, options.Verbose);
+        RunFile(filePath, options.Repetitions, options.StartSeed, options.Verbose);
       }
     }
 
-    private void RunFile(string filePath, int repetitions, bool verbose) {
+    private void RunFile(string filePath, int repetitions, int startSeed, bool verbose) {
       string fileName = Path.GetFileName(filePath);
       List<HLRunInfo> tasks = new List<HLRunInfo>();
       var optimizer = Load(filePath);
@@ -27,8 +31,8 @@ namespace HeuristicLab.ConsoleApplication {
       for (int i = 0; i < repetitions; i++) {
         foreach (var opt in listOfOptimizer) {
 
-          int coresRequired = opt as EngineAlgorithm != null && (opt as EngineAlgorithm).Engine as HeuristicLab.ParallelEngine.ParallelEngine != null
-                              ? ((opt as EngineAlgorithm).Engine as HeuristicLab.ParallelEngine.ParallelEngine).DegreeOfParallelism
+          int coresRequired = opt as EngineAlgorithm != null && (opt as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine != null
+                              ? ((opt as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine).DegreeOfParallelism
                               : 1;
           coresRequired = coresRequired > 0 ? coresRequired : Environment.ProcessorCount;
 
@@ -37,6 +41,8 @@ namespace HeuristicLab.ConsoleApplication {
           tasks.Add(new HLRunInfo((IOptimizer)opt.Clone(), filePath, coresRequired, savePath));
         }
       }
+
+      SetSeeds(tasks, startSeed, fileName);
 
       SemaphoreSlim s = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
 
@@ -99,6 +105,28 @@ namespace HeuristicLab.ConsoleApplication {
       }
 
       ContentManager.Save(allRuns, Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + "-Results.hl"), true);
+    }
+
+    private void SetSeeds(List<HLRunInfo> tasks, int startSeed, string filename) {
+      if (startSeed < 0) {
+        Helper.printToConsole("No seeds are going to be set.", filename);
+        return;
+      }
+      var parameterizedNamedItems = tasks.Select(x => x.Optimizer).OfType<ParameterizedNamedItem>();
+      if (parameterizedNamedItems.Count() != tasks.Count) {
+        throw new InvalidCastException("Cannot set seeds, because not all optimizer are of type ParameterizedNamedItem. Make sure that all optimizer are of type ParameterizedNamedItem or run without seting seeds or make sure.");
+      }
+
+      try {
+        foreach (var item in parameterizedNamedItems) {
+          item.GetType().InvokeMember("Seed", BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty, Type.DefaultBinder, item, new Object[] { new IntValue(startSeed++) });
+          item.GetType().InvokeMember("SetSeedRandomly", BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty, Type.DefaultBinder, item, new Object[] { new BoolValue(false) });
+        }
+      } catch (Exception e) {
+        Helper.printToConsole("One or more ParameterizedNamedItems do not have a property Seed or SetSeedRandomly.", filename);
+        throw e;
+      }
+      Helper.printToConsole("Seeds have successfully been set", filename);
     }
 
     private IOptimizer Load(string filePath) {

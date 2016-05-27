@@ -10,6 +10,9 @@ namespace HeuristicLab.ConsoleApplication {
     [ValueList(typeof(List<string>))]
     public List<string> InputFiles { get; set; }
 
+    [Option('e', "startseed", HelpText = "Define the start seed for all input files. For every file the first optimizer will be set to start seed and then the seed will be incremented. -1 if no seed should be set (Default: -1)", Required = false, DefaultValue = -1)]
+    public int StartSeed { get; set; }
+
     [Option('r', "repetitions", HelpText = "Define number of repitions. Default is 1. BatchRun etc. will also be run multiple times.", Required = false, DefaultValue = 1)]
     public int Repetitions { get; set; }
 
