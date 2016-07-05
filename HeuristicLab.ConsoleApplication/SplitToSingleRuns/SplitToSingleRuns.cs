@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HeuristicLab.Common;
 using HeuristicLab.Core;
 using HeuristicLab.Data;
+using HeuristicLab.Misc;
 using HeuristicLab.Optimization;
 
 namespace HeuristicLab.ConsoleApplication {
@@ -15,11 +16,11 @@ namespace HeuristicLab.ConsoleApplication {
 
     public void Start(Options options) {
       foreach (var filePath in options.InputFiles) {
-        RunFile(filePath, options.Repetitions, options.StartSeed, options.Verbose);
+        RunFile(filePath, options.Repetitions, options.StartSeed, options.Parallelism, options.Verbose);
       }
     }
 
-    private void RunFile(string filePath, int repetitions, int startSeed, bool verbose) {
+    private void RunFile(string filePath, int repetitions, int startSeed, int parallelism, bool verbose) {
       string fileName = Path.GetFileName(filePath);
       List<HLRunInfo> tasks = new List<HLRunInfo>();
       var optimizer = Load(filePath);
@@ -30,15 +31,30 @@ namespace HeuristicLab.ConsoleApplication {
 
       for (int i = 0; i < repetitions; i++) {
         foreach (var opt in listOfOptimizer) {
-
-          int coresRequired = opt as EngineAlgorithm != null && (opt as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine != null
-                              ? ((opt as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine).DegreeOfParallelism
-                              : 1;
-          coresRequired = coresRequired > 0 ? coresRequired : Environment.ProcessorCount;
+          var clone = (IOptimizer)opt.Clone();
+          int coresRequired = 1;
+          if (parallelism != 0) {
+            if (clone as EngineAlgorithm != null && (clone as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine != null) {
+              coresRequired = parallelism > 0 ? parallelism : Environment.ProcessorCount;
+              ((clone as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine).DegreeOfParallelism = coresRequired;
+            }
+          } else {
+            coresRequired = clone as EngineAlgorithm != null && (clone as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine != null
+                                ? ((clone as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine).DegreeOfParallelism
+                                : 1;
+            coresRequired = coresRequired > 0 ? coresRequired : Environment.ProcessorCount;
+          }
+          var algo = clone as Algorithm;
+          if (algo != null) {
+            var prob = algo.Problem as IParallelEvaluatorProblem;
+            if (prob != null) {
+              prob.DegreeOfParallelismParameter.Value.Value = coresRequired;
+            }
+          }
 
           string savePath = Path.GetTempFileName();
           Helper.printToConsole(String.Format("Temporary save path: {0}", savePath), fileName);
-          tasks.Add(new HLRunInfo((IOptimizer)opt.Clone(), filePath, coresRequired, savePath));
+          tasks.Add(new HLRunInfo(clone, filePath, coresRequired, savePath));
         }
       }
 
