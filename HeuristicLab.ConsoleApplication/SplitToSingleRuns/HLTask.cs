@@ -70,14 +70,14 @@ namespace HeuristicLab.ConsoleApplication {
     private void Optimizer_ExecutionTimeChanged(object sender, EventArgs e) {
       if ((verbose && Optimizer.ExecutionTime.Subtract(lastTimespan) > Helper.diffMinute)
         || (!verbose && Optimizer.ExecutionTime.Subtract(lastTimespan) > Helper.diffHour)) {
-        Helper.printToConsole(Optimizer.ExecutionTime + "; " + GetGeneration(Optimizer), runInfo.FileName);
+        Helper.printToConsole(Optimizer.ExecutionTime + "; " + GetGeneration(Optimizer), String.Format("{0}({1})", runInfo.FileName, runInfo.Id));
 
         lastTimespan = Optimizer.ExecutionTime;
       }
     }
 
     private void Optimizer_Exception(object sender, EventArgs<Exception> e) {
-      Helper.printToConsole(e.Value, runInfo.FileName, "Optimizer Exception");
+      Helper.printToConsole(e.Value, String.Format("{0}({1})", runInfo.FileName, runInfo.Id), "Optimizer Exception");
       finishedSuccessfully = false;
       finishedEventHandle.Set();
     }

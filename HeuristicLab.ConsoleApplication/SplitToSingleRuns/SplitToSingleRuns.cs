@@ -29,6 +29,7 @@ namespace HeuristicLab.ConsoleApplication {
       if (optimizer == null) { Console.WriteLine(String.Format("{0} does not contain an optimizer.", filePath)); return; }
       var listOfOptimizer = UnrollOptimizer(optimizer);
 
+      int count = 0;
       for (int i = 0; i < repetitions; i++) {
         foreach (var opt in listOfOptimizer) {
           var clone = (IOptimizer)opt.Clone();
@@ -54,7 +55,7 @@ namespace HeuristicLab.ConsoleApplication {
 
           string savePath = Path.GetTempFileName();
           Helper.printToConsole(String.Format("Temporary save path: {0}", savePath), fileName);
-          tasks.Add(new HLRunInfo(clone, filePath, coresRequired, savePath));
+          tasks.Add(new HLRunInfo(++count, clone, filePath, coresRequired, savePath));
         }
       }
 

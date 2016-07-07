@@ -351,7 +351,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RunAs.cs" />
-    <Compile Include="SplitToSingleRuns\CollectRuns.cs" />
+    <Compile Include="Other\CollectRuns.cs" />
     <Compile Include="SplitToSingleRuns\HLRunInfo.cs" />
     <Compile Include="SplitToSingleRuns\HLTask.cs" />
     <Compile Include="SplitToSingleRuns\SplitToSingleRuns.cs" />
