@@ -23,7 +23,7 @@ namespace HeuristicLab.ConsoleApplication {
     private void RunFile(string filePath, int repetitions, int startSeed, int parallelism, bool verbose) {
       string fileName = Path.GetFileName(filePath);
       List<HLRunInfo> tasks = new List<HLRunInfo>();
-      var optimizer = Load(filePath);
+      var optimizer = Load<IOptimizer>(filePath);
       optimizer.Prepare();
       optimizer.Runs.Clear();
       if (optimizer == null) { Console.WriteLine(String.Format("{0} does not contain an optimizer.", filePath)); return; }
@@ -106,7 +106,16 @@ namespace HeuristicLab.ConsoleApplication {
       Task.WaitAll(waitForTasks.ToArray());
 
       Helper.printToConsole("Saving...", fileName);
-      RunCollection allRuns = new RunCollection();
+      RunCollection allRuns;
+      string saveFile = Path.GetFileNameWithoutExtension(filePath) + "-Results.hl";
+      if (File.Exists(saveFile)) {
+        allRuns = Load<RunCollection>(saveFile);
+        if (allRuns == null) {
+          Console.WriteLine(String.Format("{0} exists but it does not contain a RunCollection. File will be overwritten.", saveFile));
+        }
+      } else {
+        allRuns = new RunCollection();
+      }
 
       foreach (var task in tasks) {
         if (!File.Exists(task.SavePath)) {
@@ -121,7 +130,7 @@ namespace HeuristicLab.ConsoleApplication {
         }
       }
 
-      ContentManager.Save(allRuns, Path.Combine(Path.GetDirectoryName(filePath), Path.GetFileNameWithoutExtension(filePath) + "-Results.hl"), true);
+      ContentManager.Save(allRuns, Path.Combine(Path.GetDirectoryName(filePath), saveFile), true);
     }
 
     private void SetSeeds(List<HLRunInfo> tasks, int startSeed, string filename) {
@@ -146,14 +155,14 @@ namespace HeuristicLab.ConsoleApplication {
       Helper.printToConsole("Seeds have successfully been set", filename);
     }
 
-    private IOptimizer Load(string filePath) {
+    private T Load<T>(string filePath) where T : class {
       Helper.printToConsole("Loading...", Path.GetFileName(filePath));
       var content = ContentManager.Load(filePath);
 
       Helper.printToConsole("Loading completed!", Path.GetFileName(filePath));
       Helper.printToConsole("Content loaded: " + content.ToString(), Path.GetFileName(filePath));
 
-      return content as IOptimizer;
+      return content as T;
     }
 
     public IEnumerable<IOptimizer> UnrollOptimizer(IOptimizer optimizer) {
