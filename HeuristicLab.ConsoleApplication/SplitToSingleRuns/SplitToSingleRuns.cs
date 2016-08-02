@@ -52,23 +52,29 @@ namespace HeuristicLab.ConsoleApplication {
         pos++;
       }
       var options = new Options();
-      if (!CommandLine.Parser.Default.ParseArguments(lines[pos].Substring(COMMANDSUSED.Length).Split(), options)) {
+      var args = Regex.Matches(lines[pos].Substring(COMMANDSUSED.Length), @"[\""].+?[\""]|[^ ]+")
+                .Cast<Match>()
+                .Select(m => m.Value)
+                .ToArray();
+      if (!CommandLine.Parser.Default.ParseArguments(args, options)) {
         Helper.printToConsole("Could not load parameters used", fileName);
+      } else {
+        options.InputFiles = options.InputFiles.Select(x => Regex.IsMatch(x, @"^[""'].*?[""']$") ? x.Substring(1, x.Length - 2) : x).ToList();
       }
 
       pos++;
-      // sanity check that files are in the correct order
-      List<string> files = new List<string>();
-      while (fileNumberRegex.IsMatch(lines[pos]) && pos < lines.Length) {
-        var match = fileNumberRegex.Match(lines[pos]);
-        if (files.Count == int.Parse(match.Groups["number"].Value)) {
-          files.Add(match.Groups["filename"].Value);
-        }
-        pos++;
-      }
-      if (!files.SequenceEqual(options.InputFiles)) {
-        options.InputFiles = files;
-      }
+      //// sanity check that files are in the correct order
+      //List<string> files = new List<string>();
+      //while (fileNumberRegex.IsMatch(lines[pos]) && pos < lines.Length) {
+      //  var match = fileNumberRegex.Match(lines[pos]);
+      //  if (files.Count == int.Parse(match.Groups["number"].Value)) {
+      //    files.Add(match.Groups["filename"].Value);
+      //  }
+      //  pos++;
+      //}
+      //if (!files.SequenceEqual(options.InputFiles)) {
+      //  options.InputFiles = files;
+      //}
 
       pos = lines.Length - 1;
       while (!lines[pos].Contains(LOADINGCOMPLETE) && pos >= 0) {

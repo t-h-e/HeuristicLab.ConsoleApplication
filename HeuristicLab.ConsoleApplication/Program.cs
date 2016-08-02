@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using HeuristicLab.Common;
 using HeuristicLab.Core;
 
@@ -8,7 +9,7 @@ namespace HeuristicLab.ConsoleApplication {
       try {
         var options = new Options();
         if (CommandLine.Parser.Default.ParseArguments(args, options)) {
-          Console.WriteLine(String.Format("Used command: {0}", String.Join(" ", args)));
+          Console.WriteLine(String.Format("Used command: {0}", String.Join(" ", args.Select(x => x.Contains(" ") ? String.Format("\"{0}\"", x) : x))));
 
           // initialize ContentManager once
           ContentManager.Initialize(new PersistenceContentManager());
