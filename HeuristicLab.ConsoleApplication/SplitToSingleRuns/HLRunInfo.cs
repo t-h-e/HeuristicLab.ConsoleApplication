@@ -9,7 +9,7 @@ namespace HeuristicLab.ConsoleApplication {
 
     public string FileName { get { return Path.GetFileName(FilePath); } }
     public int CoresRequired { get; private set; }
-    public string SavePath { get; private set; }
+    public string SavePath { get; set; }
 
     public HLRunInfo(int id, IOptimizer optimizer, string filePath, int coresRequired, string savePath) {
       Id = id;

@@ -17,8 +17,12 @@ namespace HeuristicLab.ConsoleApplication {
     public int Repetitions { get; set; }
 
     [Option('p', "parallelism", Required = false, DefaultValue = null,
-      HelpText = "Defines how many cores should be used. If set to 0, the values set in the HL file will be used. Can currently only be used with split! To use all available cores set to -1. Set to")]
+      HelpText = "Defines how many cores should be used. If set to 0, the values set in the HL file will be used. Can currently only be used with split! To use all available cores set to -1.")]
     public int Parallelism { get; set; }
+
+    [Option('c', "continue", DefaultValue = false,
+      HelpText = "If set only a single file can be set in input files, which indicates what experiment can should be continues ")]
+    public bool Continue { get; set; }
 
     [Option('v', "verbose", DefaultValue = false,
       HelpText = "Output time information from runs in intervals of minutes, default is hourly")]

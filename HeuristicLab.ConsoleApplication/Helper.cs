@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 
 namespace HeuristicLab.ConsoleApplication {
   public class Helper {
 
     private static Object writeLock = new Object();
+
+    private static CultureInfo culture = CultureInfo.CreateSpecificCulture("en-gb");
 
     public static readonly TimeSpan diffHour = new TimeSpan(1, 0, 0); // one hour
     public static readonly TimeSpan diffMinute = new TimeSpan(0, 1, 0); // one minute
@@ -24,7 +27,7 @@ namespace HeuristicLab.ConsoleApplication {
     }
 
     public static void printToConsole(string value, string fileName) {
-      StringBuilder strBuilder = new StringBuilder(DateTime.Now.ToString());
+      StringBuilder strBuilder = new StringBuilder(DateTime.Now.ToString("G", culture));
       strBuilder.Append(" ");
       strBuilder.Append(fileName);
       strBuilder.Append(": ");

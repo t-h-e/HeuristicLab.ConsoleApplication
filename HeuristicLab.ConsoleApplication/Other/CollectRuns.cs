@@ -7,7 +7,7 @@ using HeuristicLab.Optimization;
 
 namespace HeuristicLab.ConsoleApplication {
   public class CollectRuns : IRunStrategy {
-    private const string LOADINCOMPLETE = "Loading completed!";
+    private const string LOADINGCOMPLETE = "Loading completed!";
     private const string CONTENTLOADED = "Content loaded: ";
     private const string SAVEPATH = "Temporary save path: ";
 
@@ -21,7 +21,7 @@ namespace HeuristicLab.ConsoleApplication {
       string fileName = Path.GetFileNameWithoutExtension(filePath);
       string[] lines = File.ReadAllLines(filePath);
       int pos = lines.Length - 1;
-      while (!lines[pos].Contains(LOADINCOMPLETE) && pos >= 0) {
+      while (!lines[pos].Contains(LOADINGCOMPLETE) && pos >= 0) {
         pos--;
       }
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using HeuristicLab.Common;
 using HeuristicLab.Optimization;
+using HeuristicLab.Problems.CFG.Python;
 
 namespace HeuristicLab.ConsoleApplication {
   public class HLTask {
@@ -14,6 +15,7 @@ namespace HeuristicLab.ConsoleApplication {
     public IOptimizer Optimizer { get { return runInfo.Optimizer; } }
 
     private TimeSpan lastTimespan;
+    private string lastGenerationUpdate;
 
     private bool verbose;
 
@@ -27,6 +29,7 @@ namespace HeuristicLab.ConsoleApplication {
     public bool Start() {
       RegisterEvents();
 
+      lastGenerationUpdate = String.Empty;
       lastTimespan = TimeSpan.Zero;
       finishedEventHandle = new ManualResetEventSlim(false, 1);
       Optimizer.Start();
@@ -70,10 +73,25 @@ namespace HeuristicLab.ConsoleApplication {
     private void Optimizer_ExecutionTimeChanged(object sender, EventArgs e) {
       if ((verbose && Optimizer.ExecutionTime.Subtract(lastTimespan) > Helper.diffMinute)
         || (!verbose && Optimizer.ExecutionTime.Subtract(lastTimespan) > Helper.diffHour)) {
-        Helper.printToConsole(Optimizer.ExecutionTime + "; " + GetGeneration(Optimizer), String.Format("{0}({1})", runInfo.FileName, runInfo.Id));
+        string newGenerationUpdate = GetGeneration(Optimizer);
+        Helper.printToConsole(Optimizer.ExecutionTime + "; " + newGenerationUpdate, String.Format("{0}({1})", runInfo.FileName, runInfo.Id));
 
+        if (newGenerationUpdate == lastGenerationUpdate) {
+          printPythonIndividuals(Optimizer);
+        }
+
+        lastGenerationUpdate = newGenerationUpdate;
         lastTimespan = Optimizer.ExecutionTime;
       }
+    }
+
+    private void printPythonIndividuals(IOptimizer optimizer) {
+      var algo = optimizer as Algorithm;
+      if (algo == null) return;
+      var prob = algo.Problem as CFGPythonProblem;
+      if (prob == null) return;
+
+      Helper.printToConsole(String.Join(Environment.NewLine, prob.PythonProcess.GetIndidividuals()), String.Format("{0}({1})", runInfo.FileName, runInfo.Id));
     }
 
     private void Optimizer_Exception(object sender, EventArgs<Exception> e) {
