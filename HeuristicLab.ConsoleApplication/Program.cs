@@ -24,6 +24,9 @@ namespace HeuristicLab.ConsoleApplication {
             case RunAs.collect:
               (new CollectRuns()).Start(options);
               break;
+            case RunAs.reevaluate:
+              (new ReevaluateCFGPythonSolutionsInResultCollection()).Start(options);
+              break;
             default:
               (new AllInOne()).Start(options);
               break;

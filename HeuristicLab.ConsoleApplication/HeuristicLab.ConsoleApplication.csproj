@@ -348,6 +348,7 @@
     <Compile Include="Other\BreakupExperiment.cs" />
     <Compile Include="Other\GrammarPossibilities.cs" />
     <Compile Include="Other\AnalyzeCrossoverMutationGeneticMaterial.cs" />
+    <Compile Include="Other\ReevaluateCFGPythonSolutionsInResultCollection.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RunAs.cs" />

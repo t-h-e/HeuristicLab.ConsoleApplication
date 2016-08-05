@@ -24,6 +24,9 @@ namespace HeuristicLab.ConsoleApplication {
       HelpText = "If set only a single file can be set in input files, which indicates what experiment can should be continues ")]
     public bool Continue { get; set; }
 
+    [Option('t', "timeput", HelpText = "Timeout used in Reevaluation only. Default: 1.0", Required = false, DefaultValue = 1.0)]
+    public double Timeout { get; set; }
+
     [Option('v', "verbose", DefaultValue = false,
       HelpText = "Output time information from runs in intervals of minutes, default is hourly")]
     public bool Verbose { get; set; }
