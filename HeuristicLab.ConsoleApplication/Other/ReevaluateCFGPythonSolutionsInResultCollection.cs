@@ -45,7 +45,7 @@ namespace HeuristicLab.ConsoleApplication {
         }
       }
       Helper.printToConsole("Saving...", fileName);
-      ContentManager.Save(runcollection, filePath + "asdf.hl", true);
+      ContentManager.Save(runcollection, filePath, true);
       Helper.printToConsole("Saved", fileName);
     }
 
