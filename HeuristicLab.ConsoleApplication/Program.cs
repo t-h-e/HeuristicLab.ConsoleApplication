@@ -27,6 +27,9 @@ namespace HeuristicLab.ConsoleApplication {
             case RunAs.reevaluate:
               (new ReevaluateCFGPythonSolutionsInResultCollection()).Start(options);
               break;
+            case RunAs.update:
+              (new HL13To14UpdateFileFixer()).Start(options);
+              break;
             default:
               (new AllInOne()).Start(options);
               break;
