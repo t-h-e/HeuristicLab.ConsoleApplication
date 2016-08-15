@@ -173,9 +173,17 @@ namespace HeuristicLab.ConsoleApplication {
           var clone = (IOptimizer)opt.Clone();
           int coresRequired = 1;
           if (parallelism != 0) {
-            if (clone as EngineAlgorithm != null && (clone as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine != null) {
-              coresRequired = parallelism > 0 ? parallelism : Environment.ProcessorCount;
-              ((clone as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine).DegreeOfParallelism = coresRequired;
+            var cloneEngineAlgo = clone as EngineAlgorithm;
+            if (cloneEngineAlgo != null) {
+              if (parallelism == 1 && !(cloneEngineAlgo.Engine is SequentialEngine.SequentialEngine)) {
+                cloneEngineAlgo.Engine = new SequentialEngine.SequentialEngine();
+              } else {
+                if (!(cloneEngineAlgo.Engine is ParallelEngine.ParallelEngine)) {
+                  cloneEngineAlgo.Engine = new ParallelEngine.ParallelEngine();
+                }
+                coresRequired = parallelism > 0 ? Math.Max(parallelism, Environment.ProcessorCount) : Environment.ProcessorCount;
+                (cloneEngineAlgo.Engine as ParallelEngine.ParallelEngine).DegreeOfParallelism = coresRequired;
+              }
             }
           } else {
             coresRequired = clone as EngineAlgorithm != null && (clone as EngineAlgorithm).Engine as ParallelEngine.ParallelEngine != null

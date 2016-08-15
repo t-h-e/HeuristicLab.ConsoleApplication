@@ -16,7 +16,7 @@ namespace HeuristicLab.ConsoleApplication {
     [Option('r', "repetitions", HelpText = "Define number of repitions. Default is 1. BatchRun etc. will also be run multiple times.", Required = false, DefaultValue = 1)]
     public int Repetitions { get; set; }
 
-    [Option('p', "parallelism", Required = false, DefaultValue = null,
+    [Option('p', "parallelism", Required = false, DefaultValue = 0,
       HelpText = "Defines how many cores should be used. If set to 0, the values set in the HL file will be used. Can currently only be used with split! To use all available cores set to -1.")]
     public int Parallelism { get; set; }
 
