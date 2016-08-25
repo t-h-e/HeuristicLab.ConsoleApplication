@@ -24,7 +24,7 @@ namespace HeuristicLab.ConsoleApplication {
       }
 
       for (int i = 0; i < options.InputFiles.Count; i++) {
-        Console.WriteLine(String.Format("File{{0}}: {1}", i, options.InputFiles[i]));
+        Console.WriteLine(String.Format("File{{{0}}}: {1}", i, options.InputFiles[i]));
       }
       foreach (var filePath in options.InputFiles) {
         RunFile(filePath, options.Repetitions, options.StartSeed, options.Parallelism, options.Verbose);
@@ -207,6 +207,14 @@ namespace HeuristicLab.ConsoleApplication {
       return tasks;
     }
 
+    private void SetSeeds(List<HLRunInfo> tasks, int startSeed, string filename) {
+      if (startSeed < 0) {
+        Helper.printToConsole("No seeds are going to be set.", filename);
+        return;
+      }
+      SetSeeds(tasks, Enumerable.Range(startSeed, tasks.Count).ToList(), filename);
+    }
+
     private void SetSeeds(List<HLRunInfo> tasks, List<int> seeds, string filename) {
       if (seeds.Count != tasks.Count) {
         Helper.printToConsole("There are too many or too few seeds", filename);
@@ -221,28 +229,6 @@ namespace HeuristicLab.ConsoleApplication {
         for (int i = 0; i < parameterizedNamedItems.Count; i++) {
           parameterizedNamedItems[i].GetType().InvokeMember("Seed", BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty, Type.DefaultBinder, parameterizedNamedItems[i], new Object[] { new IntValue(seeds[i]) });
           parameterizedNamedItems[i].GetType().InvokeMember("SetSeedRandomly", BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty, Type.DefaultBinder, parameterizedNamedItems[i], new Object[] { new BoolValue(false) });
-        }
-      } catch (Exception e) {
-        Helper.printToConsole("One or more ParameterizedNamedItems do not have a property Seed or SetSeedRandomly.", filename);
-        throw e;
-      }
-      Helper.printToConsole("Seeds have successfully been set", filename);
-    }
-
-    private void SetSeeds(List<HLRunInfo> tasks, int startSeed, string filename) {
-      if (startSeed < 0) {
-        Helper.printToConsole("No seeds are going to be set.", filename);
-        return;
-      }
-      var parameterizedNamedItems = tasks.Select(x => x.Optimizer).OfType<ParameterizedNamedItem>();
-      if (parameterizedNamedItems.Count() != tasks.Count) {
-        throw new InvalidCastException("Cannot set seeds, because not all optimizer are of type ParameterizedNamedItem. Make sure that all optimizer are of type ParameterizedNamedItem or run without seting seeds or make sure.");
-      }
-
-      try {
-        foreach (var item in parameterizedNamedItems) {
-          item.GetType().InvokeMember("Seed", BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty, Type.DefaultBinder, item, new Object[] { new IntValue(startSeed++) });
-          item.GetType().InvokeMember("SetSeedRandomly", BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty, Type.DefaultBinder, item, new Object[] { new BoolValue(false) });
         }
       } catch (Exception e) {
         Helper.printToConsole("One or more ParameterizedNamedItems do not have a property Seed or SetSeedRandomly.", filename);
