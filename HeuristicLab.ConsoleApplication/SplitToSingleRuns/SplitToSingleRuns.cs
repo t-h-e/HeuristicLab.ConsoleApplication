@@ -166,6 +166,7 @@ namespace HeuristicLab.ConsoleApplication {
       optimizer.Runs.Clear();
       if (optimizer == null) { throw new ArgumentException(String.Format("{0} does not contain an optimizer.", filePath)); }
       var listOfOptimizer = UnrollOptimizer(optimizer);
+      TempFilesHelper tfh = TempFilesHelper.GetInstance();
 
       int count = 0;
       for (int i = 0; i < repetitions; i++) {
@@ -199,7 +200,7 @@ namespace HeuristicLab.ConsoleApplication {
             }
           }
 
-          string savePath = Path.GetTempFileName();
+          string savePath = tfh.GetTempFileName();
           if (printTmpPaths) { Helper.printToConsole(String.Format("Temporary save path: {0}", savePath), fileName); }
           tasks.Add(new HLRunInfo(++count, clone, filePath, coresRequired, savePath));
         }

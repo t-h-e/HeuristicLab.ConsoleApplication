@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using HeuristicLab.Common;
 using HeuristicLab.Core;
@@ -11,8 +10,6 @@ namespace HeuristicLab.ConsoleApplication {
         var options = new Options();
         if (CommandLine.Parser.Default.ParseArguments(args, options)) {
           Console.WriteLine(String.Format("Used command: {0}", String.Join(" ", args.Select(x => x.Contains(" ") ? String.Format("\"{0}\"", x) : x))));
-
-          CreateTempExperimentFolder();
 
           // initialize ContentManager once
           ContentManager.Initialize(new PersistenceContentManager());
@@ -53,21 +50,6 @@ namespace HeuristicLab.ConsoleApplication {
 
         Console.WriteLine("Exit with ERRORS!");
       }
-    }
-
-    private static void CreateTempExperimentFolder() {
-      string newTmpDir = String.Empty;
-      do {
-        newTmpDir = Path.GetRandomFileName();
-      } while (Directory.Exists(newTmpDir));
-
-      Directory.CreateDirectory(newTmpDir);
-      string tmpDir = Path.Combine(Directory.GetCurrentDirectory(), newTmpDir);
-
-      Console.WriteLine(String.Format("Created Temporary Experiment Folder: {0}", tmpDir));
-
-      Environment.SetEnvironmentVariable("TMP", tmpDir);    // Windows
-      Environment.SetEnvironmentVariable("TMPDIR", tmpDir); // Everything else
     }
   }
 }

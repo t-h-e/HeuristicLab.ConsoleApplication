@@ -359,6 +359,7 @@
     <Compile Include="SplitToSingleRuns\HLRunInfo.cs" />
     <Compile Include="SplitToSingleRuns\HLTask.cs" />
     <Compile Include="SplitToSingleRuns\SplitToSingleRuns.cs" />
+    <Compile Include="TempFilesHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
