@@ -6,5 +6,6 @@
     collect,
     reevaluate,
     update,
+    check,
   }
 }

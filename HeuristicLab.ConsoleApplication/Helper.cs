@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Text;
+using HeuristicLab.Common;
+using HeuristicLab.Optimization;
 
 namespace HeuristicLab.ConsoleApplication {
   public class Helper {
@@ -35,6 +38,17 @@ namespace HeuristicLab.ConsoleApplication {
       lock (writeLock) {
         Console.WriteLine(strBuilder.ToString());
       }
+    }
+
+
+    public static RunCollection LoadRunCollection(string filePath) {
+      Helper.printToConsole("Loading...", Path.GetFileName(filePath));
+      var content = ContentManager.Load(filePath);
+
+      Helper.printToConsole("Loading completed!", Path.GetFileName(filePath));
+      Helper.printToConsole("Content loaded: " + content.ToString(), Path.GetFileName(filePath));
+
+      return content as RunCollection;
     }
   }
 }

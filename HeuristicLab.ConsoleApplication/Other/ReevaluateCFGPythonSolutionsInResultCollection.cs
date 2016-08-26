@@ -17,12 +17,15 @@ namespace HeuristicLab.ConsoleApplication {
     }
 
     private void Reevaluate(string filePath, double timeout) {
-      string fileName = Path.GetFileName(filePath);
       var runcollection = LoadRunCollection(filePath);
       if (runcollection == null) {
-        Helper.printToConsole("Error: This is not an experiment.", fileName);
+        Helper.printToConsole("Error: This is not an experiment.", Path.GetFileName(filePath));
         return;
       }
+    }
+
+    public void Reevaluate(RunCollection runcollection, string filePath, double timeout) {
+      string fileName = Path.GetFileName(filePath);
 
       foreach (var run in runcollection) {
         var model = run.Results[BESTTRAININGSOLUTION + ".Model"] as ISymbolicExpressionTree;

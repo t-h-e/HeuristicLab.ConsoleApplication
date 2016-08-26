@@ -348,6 +348,7 @@
     <Compile Include="IRunStrategy.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Other\BreakupExperiment.cs" />
+    <Compile Include="Other\CheckResults.cs" />
     <Compile Include="Other\GrammarPossibilities.cs" />
     <Compile Include="Other\AnalyzeCrossoverMutationGeneticMaterial.cs" />
     <Compile Include="Other\HL13To14UpdateFileFixer.cs" />
